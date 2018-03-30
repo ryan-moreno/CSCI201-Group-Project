@@ -5,7 +5,6 @@
 public class SignUp {
 	private String username;
 	private String password;
-	//if we need a timestamp for login, why don't we have one for signup?
 
 	//deault constructor sets current user to null
 	public SignUp() {
