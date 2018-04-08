@@ -1,45 +1,44 @@
-import FirebaseFirestore
+//Reference database as db elsewhere AppRef
+import Firebase
 
-//Referecne database as db elsewhere AppRef
 
 class DatabaseInteract {
+    var db: Firestore!
     
-    func getMsgId() {
-        let docRef = db.collection("message").document(msgid)
-
-        docRef.getDocument { (document, error) in
-            if let document = document {   
-                print("Document data: \(document.data())")
-                return document.data()
-            } else {
-                print("Document does not exist")
-            }
+    func getMsgId() -> Int {
+        let docRef = db.collection("message").document("msgid")
+        var id = Int()
+        docRef.getDocument { (docSnapShot, error) in
+            guard let docSnapshot = docSnapShot, docSnapshot.exists else {return }
+            let myData = docSnapshot.data()
+            id = myData?["msgid"] as? Int ?? 0
+            
         }
+        return id
     }
 
     func nextMsgId() {
         //proceed to next message id once new msg is added
-        let docRef = db.collection("message").document(msgid)
 
-        db.collection("id").document(msgid).setData([
+        db.collection("id").document("msgid").setData([
             "id": getMsgId()+1
         ]) { err in
             if let err = err {  
                 print("Error writing document: \(err)")
             } else {
                 print("Document successfully written!")
-                nextMsgId();
             }
         }
     }
 
     
-    func addUser(user){
+    func addUser(user: User){
         //Add a new document named username into user
+        
         db.collection("user").document(user.username).setData([
             "username": user.username,
             "password": user.password,
-            "userid": uid+1
+            "userid": 1
         ]) { err in
             if let err = err {  
                 print("Error writing document: \(err)")
@@ -49,45 +48,31 @@ class DatabaseInteract {
         }
     }
 
-    func queryUser (username){
+    func queryUser (username: String) -> User {
         //returns User object that has same username
         let docRef = db.collection("user").document(username)
+        let user = User()
 
-        docRef.getDocument { (document, error) in
-            if let user = document.flatMap({
-            $0.data().flatMap({ (data) in
-                return User(dictionary: data)
-            })
-            }) {
-                print("User: \(user)")
-            } else {
-                print("Document does not exist")
-            }
+        docRef.getDocument { (docSnapShot, error) in
+            guard let docSnapshot = docSnapShot, docSnapshot.exists else {return }
+            let myData = docSnapshot.data()
+            let username = myData?["username"] as? String ?? ""
+            let password = myData?["password"] as? String ?? ""
+            user.setUsername(un: username)
+            user.setPassword(pw: password)
         }
-
-        /*
-        let docRef = db.collection("user").document(username)
-
-        docRef.getDocument { (document, error) in
-            if let document = document {
-                return document.data()
-                print("Document data: \(document.data())")
-            } else {
-                print("Document does not exist")
-            }
-        }
-        */
+        return user
     }
 
-    func addMessage (msg){
+    func addMessage (msg: Message){
         //Add a new document named message id into message collection
-        db.collection("message").document(mid).setData([
+        db.collection("message").document(String(msg.getID())).setData([
             "id": getMsgId()+1,
             "textMessage": msg.textMessage,
             "audioMessage": msg.audioMessage,
             "pictureMessage": msg.pictureMessage,
-            "locationx": msg.locationx,
-            "locationy": msg.locationy,
+            "latitude": msg.latitude,
+            "longitude": msg.longitude,
             "timestamp": msg.timestamp,
             "flaggedCount": 0
         ]) { err in
@@ -95,31 +80,43 @@ class DatabaseInteract {
                 print("Error writing document: \(err)")
             } else {
                 print("Document successfully written!")
-                nextMsgId();
+                self.nextMsgId();
             }
         }
 
     }
-
-    func queryMessage (msgid){
-        //return Message object w the same msgid
-        let docRef = db.collection("message").document(msgid)
-
-        docRef.getDocument { (document, error) in
-            if let message = document.flatMap({
-            $0.data().flatMap({ (data) in
-                return Message(dictionary: data)
-            })
-            }) {
-                print("Message: \(message)")
-            } else {
-                print("Document does not exist")
-            }
+    
+    func queryMessage (msgid: Int) -> Message {
+        //returns Message object w msgid
+        let docRef = db.collection("message").document("msgid")
+        let message = Message()
+        
+        docRef.getDocument { (docSnapShot, error) in
+            guard let docSnapshot = docSnapShot, docSnapshot.exists else {return }
+            let myData = docSnapshot.data()
+            let id = myData?["id"] as? Int ?? 0
+            let pictureMessage = myData?["pictureMessage"] as? String ?? ""
+            let audioMessage = myData?["audioMessage"] as? String ?? ""
+            let textMessage = myData?["textMessage"] as? String ?? ""
+            let flaggedCount = myData?["flaggedCount"] as? Int ?? 0
+            let timestamp = myData?["timestamp"] as? Date ?? Date()
+            let latitude = myData?["latitude"] as? Double ?? 0.0
+            let longitude = myData?["longitude"] as? Double ?? 0.0
+    
+            message.setID(id: id)
+            message.setImage(picture: pictureMessage)
+            message.setAudio(audio: audioMessage)
+            message.setText(text: textMessage)
+            message.setFlaggedCount(flagged: flaggedCount)
+            message.setTimestamp(time: timestamp)
+            message.setLatitude(lat: latitude)
+            message.setLongitude(long: longitude)
         }
+        return message
     }
 
-    func deleteMessage (msgid) {
-        db.collection("message").document(msgid).delete() { err in
+    func deleteMessage (msgid: Int){
+        db.collection("message").document("msgid").delete() { err in
             if let err = err {
                 print("Error removing document: \(err)")
             } else {
@@ -127,8 +124,8 @@ class DatabaseInteract {
             }
         }
     }
-
-    func getUsers(){
+/*
+    func getUsers() -> String{
         //return entire user collection
         db.collection("user").getDocuments() { (querySnapshot, err) in
             if let err = err {
@@ -149,5 +146,6 @@ class DatabaseInteract {
             }
         }
     }
+     */
 
 }

@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  MainMenuViewController.swift
 //  USCMessagesApp
 //
 //  Created by Michelle Huntley on 3/23/18.
@@ -9,6 +9,7 @@
 import UIKit
 
 class MainMenuViewController: UIViewController {
+    
     
     @IBAction func loginButtonPressed(_ sender: UIButton) {
         print("Button 1 pressed")

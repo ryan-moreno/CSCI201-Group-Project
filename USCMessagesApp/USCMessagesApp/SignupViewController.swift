@@ -10,6 +10,9 @@ import UIKit
 
 class SignupViewController: UIViewController {
     
+    @IBOutlet weak var userNameField: UITextField!
+    @IBOutlet weak var passwordField: UITextField!
+    
     @IBAction func backButtonPressed(_ sender: UIButton) {
     
         self.performSegue(withIdentifier: "SignupBackButton", sender: self)
