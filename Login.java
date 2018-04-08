@@ -27,8 +27,9 @@ public class Login {
 		while(userArr[i] != null) {
 			if(userArr[i].getUsername().equals(username) && userArr[i].equals(password)) {
 				found = true;
-				//set the user logged in for the current opened application to this user
-				//unsure how we are implementing this
+				//tell swift code:
+				//LoginSession.shareInstance.isLogin = true
+				//LoginSession.shareInstance.username = //(java's username)
 				break;
 			}
 		}
@@ -45,4 +46,5 @@ public class Login {
 	public void setPassword(String pw) {
 		password = pw;
 	}
+
 }
