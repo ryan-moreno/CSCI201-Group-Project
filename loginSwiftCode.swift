@@ -1,3 +1,13 @@
+//this class allows the application to know who is logged in
+Class LoginSession {
+  var isLogin:Bool = false
+  var username:String = ""
+
+  static let shareInstance = LoginSession()
+
+  init() {}
+}
+
 //this function will return 1 for a successful login, 0 for a valid username
 //but no matching password and -1 for invalid username
 
@@ -27,6 +37,9 @@ func validateLogin(String username, String password) -> int {
                 let success = jsonObj!.value(forKey: "success")
                 let usernameExists = jsonObj!.value(forKey: "usernameExists")
                 if success {
+                  //set the user as logged in
+                  LoginInfo.shareInstance.isLogin = true
+                  LoginInfo.shareInstance.username = username
                   return 1
                 } else if usernameExists {
                   return 0
@@ -70,6 +83,8 @@ func validateSignUp(String username, String password) -> int {
                 let success = jsonObj!.value(forKey: "success")
                 let usernameExists = jsonObj!.value(forKey: "usernameExists")
                 if success {
+                  LoginInfo.shareInstance.isLogin = true
+                  LoginInfo.shareInstance.username = username
                   return 1
                 } else {
                   return 0
