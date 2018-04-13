@@ -1,31 +1,28 @@
-func validateLogin(user: User) {
+func loginServlet (user: User) {
     let username = user.getUsername()
     let password = user.getPassword()
-    let json = ["username":username,"password":password]
+    let json: [String: Any] = ["username":username,"password":password]
 
-    do {
-        let jsonData = try NSJSONSerialization.dataWithJSONObject(json, options: .PrettyPrinted)
-        let url = NSURL(string: "http://127.0.0.1:8080/LoginServlet")!
-        let request = NSMutableURLRequest(URL: url)
-        request.HTTPMethod = "POST"
-        request.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
-        request.HTTPBody = jsonData
-        let task = NSURLSession.sharedSession().dataTaskWithRequest(request){ data, response, error in
-              //check for errors
-              guard let data = data, error == nil else {
-                  print("error=\(String(describing: error))")
-                  return
-              }
+    let jsonData = try? JSONSerialization.data(withJSONObject: json)
 
-              if let httpStatus = response as? HTTPURLResponse, httpStatus.statusCode != 200 {
-                  print("statusCode should be 200, but is \(httpStatus.statusCode)")
-                  print("response = \(String(describing: response))")
-              }
-            
+    // create post request
+    let url = URL(string: "http://10.123.71.138:8080/DatabaseServlets/LogInServlet")!
+    var request = URLRequest(url: url)
+    request.httpMethod = "POST"
+
+    // insert json data to the request
+    request.httpBody = jsonData
+
+    let task = URLSession.shared.dataTask(with: request) { data, response, error in
+        guard let data = data, error == nil else {
+            print(error?.localizedDescription ?? "No data")
+            return
         }
-        task.resume()
-    } catch {
-        print(error)
+        let responseJSON = try? JSONSerialization.jsonObject(with: data, options: [])
+        if let responseJSON = responseJSON as? [String: Any] {
+            print(responseJSON)
+        }
     }
-    
+
+    task.resume()
 }
